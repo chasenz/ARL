@@ -6,7 +6,7 @@ logger = utils.get_logger()
 
 
 class PortScan:
-    def __init__(self, targets, ports=None, service_detect=False, os_detect=False,
+    def __init__(self, targets, ports=None, is_ipv6=False, service_detect=False, os_detect=False,
                  port_parallelism=None, port_min_rate=None, custom_host_timeout=None):
         self.targets = " ".join(targets)
         self.ports = ports
@@ -17,6 +17,10 @@ class PortScan:
         self.host_timeout = 60*5
         self.parallelism = port_parallelism  # 默认 32
         self.min_rate = port_min_rate  # 默认64
+        self.is_ipv6 = is_ipv6
+
+        if self.is_ipv6:
+            self.nmap_arguments += " -6"
 
         if service_detect:
             self.host_timeout += 60 * 5
@@ -87,7 +91,8 @@ class PortScan:
             ip_info = {
                 "ip": host,
                 "port_info": port_info_list,
-                "os_info": os_info
+                "os_info": os_info,
+                "ip_version": 6 if self.is_ipv6 else 4
             }
             ip_info_list.append(ip_info)
 
@@ -102,11 +107,11 @@ class PortScan:
         return {}
 
 
-def port_scan(targets, ports=Config.TOP_10, service_detect=False, os_detect=False,
+def port_scan(targets, ports=Config.TOP_10, is_ipv6=False, service_detect=False, os_detect=False,
               port_parallelism=32, port_min_rate=64, custom_host_timeout=None):
     targets = list(set(targets))
     targets = list(filter(utils.not_in_black_ips, targets))
-    ps = PortScan(targets=targets, ports=ports, service_detect=service_detect, os_detect=os_detect,
+    ps = PortScan(targets=targets, is_ipv6=is_ipv6, ports=ports, service_detect=service_detect, os_detect=os_detect,
                   port_parallelism=port_parallelism, port_min_rate=port_min_rate,
                   custom_host_timeout=custom_host_timeout)
     return ps.run()

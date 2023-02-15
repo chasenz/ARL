@@ -16,6 +16,18 @@ def update_task_tag():
             conn_db(table).find_one_and_replace(query, item)
 
 
+def update_ip_version():
+    """更新ip版本信息"""
+    table = "ip"
+    items = conn_db(table).find({})
+    for item in items:
+        ip_version = item.get("ip_version")
+        query = {"_id": item["_id"]}
+        if not ip_version:
+            item["ip_version"] = 4
+            conn_db(table).find_one_and_replace(query, item)
+
+
 def create_index():
     index_map = {
         "cert": "task_id",
@@ -53,6 +65,7 @@ def arl_update():
         return
 
     update_task_tag()
+    update_ip_version()
     create_index()
     create_site_index()
 

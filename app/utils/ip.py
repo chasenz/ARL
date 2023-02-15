@@ -2,14 +2,36 @@ import re
 import geoip2.database
 from app.config import Config
 from .IPy import IP
+import ipaddress
 
 
 def is_vaild_ip_target(ip):
-    if re.match(
-            r"^\d+\.\d+\.\d+\.\d+$|^\d+\.\d+\.\d+\.\d+/\d+$|^\d+\.\d+\.\d+.\d+-\d+$", ip):
+    if ipaddress.ip_address(ip):
         return True
     else:
         return False
+
+
+def is_ipv4(ip):
+    try:
+        ipaddress.IPv4Address(ip)
+        return True
+    except:
+        return False
+
+
+def is_ipv6(ip):
+    try:
+        ipaddress.IPv6Address(ip)
+        return True
+    except:
+        return False
+
+
+def classify_ip(ip_list):
+    ipv4_list = list(filter(is_ipv4, ip_list))
+    ipv6_list = list(filter(is_ipv6, ip_list))
+    return ipv4_list, ipv6_list
 
 
 def transfer_ip_scope(target):
@@ -25,7 +47,7 @@ def transfer_ip_scope(target):
         logger.warn("error on ip_scope {} {}".format(target, e))
 
 
-#判断是否在黑名单IP内，有点不严谨
+# 判断是否在黑名单IP内，有点不严谨
 def not_in_black_ips(target):
     from . import get_logger
     logger = get_logger()
@@ -80,7 +102,7 @@ def get_ip_city(ip):
         return item
 
     except Exception as e:
-        logger.warning("{} {}".format(e,ip))
+        logger.warning("{} {}".format(e, ip))
         return {}
 
 
@@ -115,4 +137,3 @@ def ip_in_scope(ip, scope_list):
                 return True
         except Exception as e:
             logger.warning("{} {} {}".format(e, ip, item))
-

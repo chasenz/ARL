@@ -15,7 +15,7 @@ from tld import get_tld
 from .conn import http_req, conn_db
 from .http import get_title, get_headers
 from .domain import check_domain_black, is_valid_domain, is_in_scope, is_in_scopes, is_valid_fuzz_domain
-from .ip import is_vaild_ip_target, not_in_black_ips, get_ip_asn, get_ip_city, get_ip_type
+from .ip import is_vaild_ip_target, not_in_black_ips, get_ip_asn, get_ip_city, get_ip_type, classify_ip
 from .arl import arl_domain, get_asset_domain_by_id
 from .time import curr_date, time2date, curr_date_obj
 from .url import rm_similar_url, get_hostname, normal_url, same_netloc, verify_cert, url_ext
