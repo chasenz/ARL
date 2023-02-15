@@ -90,7 +90,9 @@ class IPTask(CommonTask):
             scan_port_option["custom_host_timeout"] = self.options.get("host_timeout", 60 * 15)
 
         targets = self.ip_target.split()
-        ip_port_result = services.port_scan(targets, **scan_port_option)
+        ipv4_targets, ipv6_targets = utils.classify_ip(targets)
+        ip_port_result = services.port_scan(ipv4_targets, **scan_port_option)
+        ip_port_result.extend(services.port_scan(ipv6_targets, **scan_port_option))
         self.ip_info_list.extend(ip_port_result)
 
         if self.task_tag == 'monitor':
@@ -125,6 +127,9 @@ class IPTask(CommonTask):
             for port_info in ip_info["port_info"]:
                 curr_ip = ip_info["ip"]
                 port_id = port_info["port_id"]
+                ip_version = ip_info["ip_version"]
+                if ip_version == 6:
+                    curr_ip = "[{}]".format(curr_ip)
                 if port_id == 80:
                     url_temp = "http://{}".format(curr_ip)
                     url_temp_list.append(url_temp)
